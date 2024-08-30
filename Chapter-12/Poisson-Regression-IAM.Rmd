@@ -1,0 +1,192 @@
+---
+title: "IAM-Poisson-Regression-Predictor"
+author: "Nick V. Flor"
+date: "2023-01-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(lmtest)
+```
+
+# READ DATASET
+################################################################################
+```{r}
+#df=read.csv("predict-count-Lexicon-Nursing-Transcript.csv")
+#df=read.csv("predict-count-Lexicon-Culture-1-Transcript.csv")
+#df=read.csv("predict-count-Lexicon-Culture-2-Transcript.csv")
+df=read.csv("predict-count-Lexicon-ALL-Transcript.csv")
+summary(df)
+```
+
+
+# PERFORM LINEAR REGRESSION: PHASE 1
+################################################################################
+```{r}
+#
+# Model 1
+#
+model1=lm(apI~cpI+cpII+cpIII+cpIV+cpV  , data = df)
+plot(model1, 1:5)
+summary(model1)
+```
+
+
+# PERFORM LINEAR REGRESSION: PHASE 2
+################################################################################
+```{r}
+#
+# Model 2
+#
+model2=lm(apII~cpI+cpII+cpIII+cpIV+cpV , data = df)
+plot(model2, 1:5)
+summary(model2)
+```
+
+
+# PERFORM LINEAR REGRESSION: PHASE 3
+################################################################################
+
+``` {r}
+#
+# Model 3
+#
+model3=lm(apIII~cpI+cpII+cpIII+cpIV+cpV, data = df)
+plot(model3, 1:5)
+summary(model3)
+```
+
+
+# PERFORM LINEAR REGRESSION: PHASE 4
+################################################################################
+```{r}
+#
+# Model 4
+#
+model4=lm(apIV~cpI+cpII+cpIII+cpIV+cpV , data = df)
+plot(model4, 1:5)
+summary(model4)
+```
+
+
+# PERFORM LINEAR REGRESSION: PHASE 5
+################################################################################
+```{r}
+#
+# Model 5
+#
+model5=lm(apV~cpI+cpII+cpIII+cpIV+cpV  , data = df)
+plot(model5, 1:5)
+summary(model5)
+```
+
+
+# Regression Assumption Tests
+################################################################################
+```{r}
+
+# Independence assumption: residuals independent
+independenceAssumption1 = lmtest::dwtest(model1) # FAIL
+independenceAssumption2 = lmtest::dwtest(model2) # PASS
+independenceAssumption3 = lmtest::dwtest(model3) # FAIL
+independenceAssumption4 = lmtest::dwtest(model4) # PASS
+independenceAssumption5 = lmtest::dwtest(model5) # PASS
+
+# Homoscedasticity assumption:  constant error variance across predictors
+homoAssumption1 = lmtest::bptest(model1) # FAIL
+homoAssumption2 = lmtest::bptest(model2) # FAIL
+homoAssumption3 = lmtest::bptest(model3) # FAIL
+homoAssumption4 = lmtest::bptest(model4) # FAIL
+homoAssumption5 = lmtest::bptest(model5) # FAIL
+
+# Normality assumption: errors are normally distributed
+normAssumption1 = shapiro.test(model1$residuals) # FAIL
+normAssumption2 = shapiro.test(model2$residuals) # FAIL
+normAssumption3 = shapiro.test(model3$residuals) # FAIL
+normAssumption4 = shapiro.test(model4$residuals) # FAIL
+normAssumption5 = shapiro.test(model5$residuals) # FIAL
+
+```
+#
+#
+# POISSON REGRESSION RESULTS
+#
+#
+
+
+# PERFORM POISSON REGRESSION: PHASE 1
+################################################################################
+```{r}
+#
+# Model 1
+#
+model1r=glm(apI~cpI+cpII+cpIII+cpIV+cpV  , family = "poisson", data = df)
+hist(df$apI)
+hist(residuals(model1r))
+summary(model1r)
+```
+
+# PERFORM POISSON REGRESSION: PHASE 2
+################################################################################
+```{r}
+#
+# Model 2
+#
+model2r=glm(apII~cpI+cpII+cpIII+cpIV+cpV , family = "poisson", data = df)
+hist(df$apII)
+hist(residuals(model2r))
+summary(model2r)
+```
+
+
+# PERFORM POISSON REGRESSION: PHASE 3
+################################################################################
+```{r}
+#
+# Model 3
+#
+model3r=glm(apIII~cpI+cpII+cpIII+cpIV+cpV, family = "poisson", data = df)
+hist(df$apIII)
+hist(residuals(model3r))
+summary(model3r)
+```
+
+
+# PERFORM POISSON REGRESSION: PHASE 4
+################################################################################
+```{r}
+#
+# Model 4
+#
+model4r=glm(apIV~cpI+cpII+cpIII+cpIV+cpV , family = "poisson", data = df)
+hist(df$apIV)
+hist(residuals(model4r))
+summary(model4r)
+```
+
+
+# PERFORM POISSON REGRESSION: PHASE 5
+################################################################################
+```{r}
+#
+# Model 5
+#
+model5r=glm(apV~cpI+cpII+cpIII+cpIV+cpV  , family = "poisson", data = df)
+hist(df$apV)
+hist(residuals(model5r))
+summary(model5r)
+```
+
+
+# Poisson Regression Assumption Tests
+# 1. Response variable is a Poisson distribution.
+# 2, Response mean = predicted value
+# 3. Response variance = mean
+# 4. Residuals independent
+################################################################################
+```{r}
+# TODO
+```
+
